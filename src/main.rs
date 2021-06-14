@@ -1,5 +1,6 @@
 use std::io::Write;
 
+use std::path::Path;
 use std::process::Command;
 
 use colored::*;
@@ -19,7 +20,7 @@ fn trim_newline(s: &mut String) {
 fn get_from_dir<S: Into<String>>(dir: S) -> Vec<String> {
     let mut files: Vec<String> = Vec::new();
     let dir_str: String = dir.into();
-    for file in std::fs::read_dir(std::path::Path::new(&dir_str)).unwrap() {
+    for file in std::fs::read_dir(Path::new(&dir_str)).unwrap() {
         let ft: String = file.unwrap().file_name().to_str().unwrap().into();
         files.push(ft);
     }
@@ -68,7 +69,7 @@ fn read_input<S: Into<String>>(s: S) -> String {
 
 fn get_uuid_path<S: Into<String>>(uuid: S) -> String {
     let dir: String = format!("/dev/disk/by-uuid/{}", uuid.into());
-    let sdx: String = std::fs::canonicalize(std::path::Path::new(&dir))
+    let sdx: String = std::fs::canonicalize(Path::new(&dir))
         .unwrap()
         .to_str()
         .unwrap()
@@ -81,14 +82,14 @@ fn main() {
         eprintln!("{}", "Administrator permission are needed".red());
         std::process::exit(1);
     };
-    let path = std::path::Path::new(FSTAB_PATH);
+    let path = Path::new(FSTAB_PATH);
     if !path.exists() {
         eprintln!("{}", "The fstab file does not exists".red());
         std::process::exit(1);
     }
 
     let mut disks: Vec<(String, String)> = Vec::new();
-    for disk in std::fs::read_dir(std::path::Path::new("/dev/disk/by-uuid")).unwrap() {
+    for disk in std::fs::read_dir(Path::new("/dev/disk/by-uuid")).unwrap() {
         let uuid: String = disk.unwrap().file_name().to_str().unwrap().into();
         let sdx: String = get_uuid_path(&uuid);
         disks.push((sdx, uuid));
@@ -104,9 +105,9 @@ fn main() {
     let vfs_type = filetypes[menu2.show()[0]].clone();
 
     let fs_spec = format!("UUID={}", selected_disk.1);
-    
+
     let dir = read_input(format!("Mountpoint for {}: ", selected_disk.0));
-    let mountpoint = std::path::Path::new(&dir);
+    let mountpoint = Path::new(&dir);
     if !mountpoint.exists() {
         eprintln!("{}", "The path does not exists".red());
         std::process::exit(1);
