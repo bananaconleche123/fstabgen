@@ -94,22 +94,18 @@ fn main() {
         disks.push((sdx, uuid));
     }
     disks.sort();
-    
-    let mut disks_info: Vec<String> = Vec::new();
-    for disk in &disks {
-        disks_info.push(format!("{} ({})", disk.0, disk.1))
-    }
 
+    let disks_info: Vec<String> = disks.iter().map(|x| format!("{} ({})", x.0, x.1)).collect();
     let mut menu1 = youchoose::Menu::new(disks_info.iter());
     let selected_disk = &disks[menu1.show()[0]];
 
     let filetypes = get_fs();
     let mut menu2 = youchoose::Menu::new(filetypes.iter());
     let vfs_type = filetypes[menu2.show()[0]].clone();
- 
-    let dir = read_input(format!("Mountpoint for {}: ", selected_disk.0));
 
     let fs_spec = format!("UUID={}", selected_disk.1);
+    
+    let dir = read_input(format!("Mountpoint for {}: ", selected_disk.0));
     let mountpoint = std::path::Path::new(&dir);
     if !mountpoint.exists() {
         eprintln!("{}", "The path does not exists".red());
